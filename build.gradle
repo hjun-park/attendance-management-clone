@@ -1,0 +1,150 @@
+plugins {
+   id 'org.springframework.boot' version '2.7.0'
+   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+   id 'java'
+    //querydsl start
+   id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+   //querydsl end
+}
+
+group = 'com.hjun'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+def querydslVersion = '5.0.0'
+
+//configurations {
+//   compileOnly {
+//      extendsFrom annotationProcessor
+//   }
+//}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Bean Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// JWT
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.2'
+    
+    // p6spy
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
+
+    // querydsl
+    implementation group: 'com.querydsl', name: 'querydsl-jpa', version: querydslVersion
+    implementation group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
+    implementation group: 'com.querydsl', name: 'querydsl-core', version: querydslVersion
+
+    // @ConfigureProperties를 사용하기 위해 추가
+    // configure 파일을 읽어들이기 위함
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    // spring redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
+    
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter'
+   
+	// https://mvnrepository.com/artifact/com.oracle.ojdbc/orai18n
+	implementation group: 'com.oracle.ojdbc', name: 'orai18n', version: '19.3.0.0'
+   
+	// for batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+   
+	// spring retry
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.retry:spring-retry:1.1.5.RELEASE'
+	implementation 'org.springframework:spring-aspects'
+    
+    // related to test
+    implementation('org.springframework.boot:spring-boot-devtools')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+tasks.named('test') {
+   useJUnitPlatform()
+}
+
+/* Eclipse 설정 시작 ----------------------------*/
+def querydslDir =  "src/main/generated"
+//def querydslDir =  "$buildDir/generated/querydsl"
+
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    jpa = true
+//    querydslDefault = true
+    querydslSourcesDir = querydslDir
+}
+//에디터 설정
+//sourceSets {
+//   main { 
+//      java {
+//         srcDirs = ['src/main/java', querydslDir] 
+//      }
+//   }
+//}
+
+sourceSets {
+    //main.java.srcDirs += [ querydslDir ]
+    main.java.srcDir querydslDir
+}
+
+//컴파일 클래스 패스에 넣음.
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    querydsl.extendsFrom compileClasspath
+}
+
+//어노테이션 프로세서와 맞물려서 빌드시 생성
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+tasks.withType(JavaCompile).configureEach {
+    options.fork = true
+    options.incremental = true
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+bootJar {
+    archiveName 'stdweb.jar'
+    mainClass = 'com.hjun.timereport.TimeReportApplication'
+}
+//compileQuerydsl.doFirst {
+//    if(file(querydslDir).exists())
+//        delete(file(querydslDir))
+//}
+//
+//tasks.withType(JavaCompile) {
+//    //options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+//    options.generatedSourceOutputDirectory = file(querydslDir)
+//}
+
+
+/* Eclipse 설정 종료 ----------------------------*/
+
+
+// Intellij
+/*
+clean {
+    delete file(querydslDir) // 인텔리제이 Annotation processor 생성물 생성위치
+}
+
+task cleanGeneatedDir(type: Delete) { // 인텔리제이 annotation processor 가 생성한 Q클래스가 clean 태스크로 삭제되는 게 불편하다면 둘 중에 하나를 선택
+    delete file(querydslDir)
+}
+*/

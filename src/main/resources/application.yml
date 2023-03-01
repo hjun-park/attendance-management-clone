@@ -1,0 +1,80 @@
+server:
+  servlet:
+    session:
+      tracking-modes: cookie # session ID가 URI에 보이지 않게 설정
+    encoding:
+      force-response: true
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@192.168.245.243:1524:DBDEV2
+    username: test
+    password: test123
+    driver-class-name: oracle.jdbc.OracleDriver
+  sql:
+    init:
+      platform: oracle
+  cache:
+    type: redis #redis-cache 사용
+  redis:
+    host: 192.168.245.58
+    port: 6329
+    password: test123!
+  session:
+    # timeout: 30000 # ms connection timeout (1m = 60*1000)
+    store-type: redis
+  batch:
+    jdbc:
+     initialize-schema: always # batch 스키마 자동 생성
+    job:
+     enabled: false # 시작과 동시에 실행되는 것 방지 
+    
+    redis:
+      flush-mode: ON_SAVE #on-save 호출될때 기록 immedaate 즉시 Redis에 기록
+      namespace: spring:session #redis에 기록될 namespace
+
+
+#  redis:
+#    host: 127.0.0.1
+#    port: 6379
+
+    
+#  profiles:
+#    include:
+      #      - dev
+      #      - prod
+      #      - infra
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        
+# p6spy
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      
+secret:
+  login-member: "loginMember" 
+  
+#logging:
+#  level:
+#    org.hibernate.type: trace
+  
+slack:
+  auth-prefix: "Bearer "
+  header-string: Authorization
+  bot-oauth-token: test
+  url: https://slack.com/api/chat.postMessage?channel=test
+
+#job:
+#  name: TwoWeeksBatch
