@@ -27,7 +27,6 @@
   <img src="https://img.shields.io/badge/-SpringBatch-green"/>&nbsp
   <img src="https://img.shields.io/badge/-Oracle-blue"/>&nbsp
   <img src="https://img.shields.io/badge/-Redis-red"/>&nbsp
-  <img src="https://img.shields.io/badge/-JWT-orange"/>&nbsp
   <img src="https://img.shields.io/badge/-Spring Data JPA-grey"/>&nbsp
 </p> 
 
